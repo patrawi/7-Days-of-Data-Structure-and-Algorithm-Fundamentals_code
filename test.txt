@@ -1,0 +1,43 @@
+def calculateMinGroup(n, levels):
+    # สร้าง graph แบบ adjacency list
+    graph = {i: [] for i in range(n)}
+    # กำหนดค่าเริ่มต้นแต่ละ vertex ว่าเป็น root node
+    isRoot = {i: True for i in range(n)}
+
+    for u, v in levels:  # Unpacking the level pairs directly
+        graph[u - 1].append(v - 1)
+        # เมื่อเรารู้แล้วว่า v เป็น child node; mark ว่า v ไม่เป็น root node
+        isRoot[v - 1] = False
+
+    # คำนวน max height จาก tree ทั้งหมด (ใช้ DFS)
+    maxHeight = 0
+    for i in range(n):
+        # ถ้าไม่ใช่ root node; ไม่ต้องทำ DFS
+        if not isRoot[i]:
+            continue
+
+        stack = []
+        visited = [False] * n
+        height = 0
+
+        stack.append({'v': i, 'depth': 0})
+
+        while stack:
+            node = stack.pop()
+
+            if not visited[node['v']]:
+                visited[node['v']] = True
+                height = max(height, node['depth'])
+
+            # เก็บ vertices ที่อยู่ติดกันลงใน stack เพื่อ visit ต่อไป
+            adjacentVertices = graph[node['v']]
+            for v in adjacentVertices:
+                if not visited[v]:
+                    stack.append({
+                        'v': v,
+                        'depth': node['depth'] + 1
+                    })
+
+        maxHeight = max(maxHeight, height)
+
+    return maxHeight + 1
